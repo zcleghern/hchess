@@ -4,7 +4,7 @@ module ChessBoard where
 import Data.Array
 
 data Color = White | Black deriving (Eq)
-data Coord = Coord Int Int
+data Coord = Coord Int Int deriving (Eq)
 data Piece = Pawn Color | Rook Color | Knight Color | Bishop Color | Queen Color | King Color | Empty deriving (Eq)
 type Board = Array Int (Array Int Piece)
 

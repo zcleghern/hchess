@@ -1,6 +1,6 @@
 module Main where
 
-
+import ChessBoard
 
 main::IO()
-main = undefined
+main = putStrLn $ printBoard initBoard
