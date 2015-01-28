@@ -50,8 +50,20 @@ removeP :: Board -> Int -> Int -> Board
 removeP = addP Empty
         
 addP :: Piece -> Board -> Int -> Int -> Board
-addP p b row col = b//[(row, oldRow//[(col, p)])]
+addP p b col row = b//[(row, oldRow//[(col, p)])]
         where oldRow = (!) b row
+        
+westOf :: Coord -> Coord -> Bool
+westOf (Coord x1 _) (Coord x2 _) = x1 < x2
+
+eastOf :: Coord -> Coord -> Bool
+eastOf (Coord x1 _) (Coord x2 _) = x1 > x2
+
+northOf :: Coord -> Coord -> Bool
+northOf (Coord _ y1) (Coord _ y2) = y1 < y2
+
+southOf :: Coord -> Coord -> Bool
+southOf (Coord _ y1) (Coord _ y2) = y1 > y2
 
 row :: Board -> Int -> [Piece]
 row b r = elems $ (!) b r
@@ -63,8 +75,14 @@ col b c = map (get c) $ elems b
 getP :: Board -> Coord -> Piece
 getP b (Coord x y) = (!) ((!) b y) x
         
-color :: Piece -> Color
-color (Pawn c) = c
+color :: Piece -> Maybe Color
+color (Pawn c) = Just c
+color (Rook c) = Just c
+color (Knight c) = Just c
+color (Bishop c) = Just c
+color (Queen c) = Just c
+color (King c) = Just c
+color Empty = Nothing
 
 adj :: Coord -> Coord -> Bool
 adj (Coord x1 y1) (Coord x2 y2)
