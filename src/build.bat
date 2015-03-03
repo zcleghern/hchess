@@ -1,1 +1,1 @@
-ghc ChessBoard.hs ChessRules.hs Main.hs
+ghc ChessBoard.hs Game.hs ChessRules.hs Main.hs
