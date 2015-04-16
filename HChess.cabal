@@ -2,14 +2,16 @@ name:           HChess
 version:        0.1
 cabal-version:  >=1.2
 build-type:     Simple
-author:         Zach
+author:         Zach Cleghern
 
 executable HChess
   hs-source-dirs:  src
   main-is:         Main.hs
-  build-depends:   base >= 4
-  ghc-options:     -Wall
+  build-depends:   base >= 4, array
+  ghc-options:     -Wall -O
   other-modules:   
                    ChessBoard,
-                   ChessRules
-
+                   ChessRules,
+                   Castling,
+                   Enpassant,
+                   AI
