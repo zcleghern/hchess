@@ -1,0 +1,1 @@
+ghc -O ChessBoard.hs Enpassant.hs Castling.hs ChessRules.hs GameLogic.hs Main.hs AI.hs
