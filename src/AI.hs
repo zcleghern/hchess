@@ -23,30 +23,22 @@ alphaBeta g = maxGame $ map (\mv -> (abNode 6 (-100) 100 (move g mv) False, mv))
         where maxGame = snd . foldr foldingF (-100, Move (Coord 1 1) (Coord 1 1))
               foldingF x y = if fst y > fst x then y else x
 
-abNode :: Int -> Int -> Int -> Game -> Bool -> Int
-abNode 0 _ _ g _ = evalNaive g
-abNode d a b g@(Game _ _ trn) isMax
+abNode :: Int -> Int -> Int -> Maybe Game -> Bool -> Int
+abNode 0 _ _ (Just g) _ = evalNaive g
+abNode d a b (Just g@(Game _ _ trn)) isMax
         | checkMate g trn = -1000
         | checkMate g (notC trn) = 1000
-        | isMax = abMaxHelper d (-100) a b g $ nextMoves g
-        | otherwise = abMinHelper d 100 a b g $ nextMoves g
+        | otherwise = abHelper d 100 a b g (nextMoves g) isMax
+abNode _ _ _ Nothing _ = 0
 
         
-abMaxHelper :: Int -> Int -> Int -> Int -> Game -> [Move] -> Int
-abMaxHelper d v a b g [] = v
-abMaxHelper d v a b g (x:xs)
+abHelper :: Int -> Int -> Int -> Int -> Game -> [Move] -> Bool -> Int
+abHelper _ v _ _ _ [] _ = v
+abHelper d v a b g (x:xs) isMax
         | b <= newA = newV
-        | otherwise = abMaxHelper d newV newA b g xs
-                where newV = max v (abNode (d - 1) a b (move g x) False)
+        | otherwise = abHelper d newV newA b g xs isMax
+                where newV = max v (abNode (d - 1) a b (move g x) (not isMax))
                       newA = max a newV
-                     
-abMinHelper :: Int -> Int -> Int -> Int -> Game -> [Move] -> Int
-abMinHelper d v a b g [] = v
-abMinHelper d v a b g (x:xs)
-        | newB <= a = newV
-        | otherwise = abMinHelper d newV a newB g xs
-                where newV = min v (abNode (d - 1) a b (move g x) True)
-                      newB = min b newV
                       
 nextMoves :: Game -> [Move]
 nextMoves g = filterLegal $ concatMap (possibleMoves g) allSpaces
