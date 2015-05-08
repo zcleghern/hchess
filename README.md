@@ -1,9 +1,7 @@
 # hchess
 Haskell chess program.  In a very rough state.
 
-build.bat just runs ghc if you don't want to use cabal (had it here before I was using cabal)
-
-Currently the other player is using minimax with alpha-beta pruning (not really working).
+Currently the other player (always black at the moment) is using minimax with alpha-beta pruning (not currently working).
 
 TODO:
 
