@@ -7,8 +7,8 @@ author:         Zach Cleghern
 executable HChess
   hs-source-dirs:  src
   main-is:         Main.hs
-  build-depends:   base >= 4, array
-  ghc-options:     -Wall -O
+  build-depends:   base >= 4, array, parallel
+  ghc-options:     -Wall -O -threaded +RTS -N
   other-modules:   
                    ChessBoard,
                    ChessRules,

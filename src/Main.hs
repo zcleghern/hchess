@@ -8,14 +8,32 @@ import Data.Char
 import Data.Maybe
 import Control.Applicative
 
-
 main::IO()
 main = do
-        play $ Game initBoard [] White
+        playTest $ Game initBoard [] White
         return ()
+        
+playTest :: Game -> IO ()
+playTest g@(Game b _ t) = do
+
+        putStrLn $ printBoard b ++ "\n" ++ show t ++ " to play"
+        putStrLn "Enter your move"
+        input <- getLine
+        let maybeResult = execute g input
+        let result = fromMaybe g maybeResult
+        let aiMove = alphaBeta result
+        putStrLn $ "move values: " ++ printMoveValues (nextMoves result) result
+        let aiResult =  case move result aiMove of
+                Just gm -> gm
+                _ -> Game initBoard [] White
+        case status aiResult of
+                WhiteMated -> putStrLn "White has been checkmated. \n Black wins!"
+                BlackMated -> putStrLn "Black has been checkmated. \n White wins!"
+                _ -> playTest aiResult
         
 play :: Game -> IO ()
 play g@(Game b _ t) = do
+
         putStrLn $ printBoard b ++ "\n" ++ show t ++ " to play"
         putStrLn "Enter your move"
         input <- getLine
@@ -50,3 +68,14 @@ parseCoord [x,y] = case toLower x of
         'h' -> Just $ Coord 8 (digitToInt y)
         _ -> Nothing
 parseCoord _ = Nothing
+
+
+printMoveValues :: [Move] -> Game -> String
+printMoveValues mvs g = unwords . map helper . map (move g) $ mvs
+        where helper (Just gm) = show $ evalNaive gm
+              helper Nothing = []
+              
+alphaBetaT :: Game -> Move
+alphaBetaT g = maxGame $ map (\mv -> (abNode 6 (-100) 100 (move g mv) False, mv)) (nextMoves g)
+        where maxGame = snd . foldr foldingF (-100, Move (Coord 1 1) (Coord 1 1))
+              foldingF x y = if fst y > fst x then y else x

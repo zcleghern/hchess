@@ -34,11 +34,4 @@
 	<natures>
 		<nature>net.sf.eclipsefp.haskell.core.project.HaskellNature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>src/CastlingTests.hs</name>
-			<type>1</type>
-			<location>C:/Users/Zach/workspace/HChess/src/CastlingTests.hs</location>
-		</link>
-	</linkedResources>
 </projectDescription>
