@@ -3,39 +3,44 @@ module AI where
 import ChessRules
 import ChessBoard
 import GameLogic
+import Data.Maybe
 import Control.Applicative
 import Control.Parallel (par, pseq)
 import Control.Parallel.Strategies
 import Debug.Trace
 
---minimax :: Game -> Move
---minimax g = maxGame $ map (\mv -> (mmMinNode 3 (move g mv), mv)) (nextMoves g)
-  --      where maxGame = snd . foldr foldingF (-40, Move (Coord 1 1) (Coord 1 1))
-    --          foldingF x y = if fst x < fst y then y else x
+testGame :: Game
+testGame = Game (addP (Pawn White) (addP (Knight Black) (addP (Pawn White) blankBoard (Coord 4 4)) (Coord 5 5)) (Coord 1 1)) [] White
 
---mmMaxNode :: Int -> Maybe Game -> Int
---mmMaxNode 0 (Just (Game b fl trn)) = evalNaive b trn
---mmMaxNode d g = maximum (map (mmMinNode (d - 1)) (nextMoves g))
 
---mmMinNode :: Int -> Maybe Game -> Int
---mmMinNode 0 (Just (Game b fl trn)) = evalNaive b (notC trn)
---mmMinNode d g = minimum (map (mmMaxNode (d - 1)) (nextMoves g))
+minimax :: Game -> Game
+minimax g = fromMaybe g (move g $ maxGame $ map (\mv -> (mmMinNode 3 (move g mv), mv)) (nextMoves g))
+      where maxGame = snd . foldr foldingF (-40, Move (Coord 1 1) (Coord 1 1))
+            foldingF x y = if fst x < fst y then y else x
+
+mmMaxNode :: Int -> Maybe Game -> Int
+mmMaxNode 0 (Just g) = evalNaive g
+mmMaxNode d (Just g) = maximum (map (mmMinNode (d - 1) . move g) (nextMoves g))
+
+mmMinNode :: Int -> Maybe Game -> Int
+mmMinNode 0 (Just g) = evalNaive g
+mmMinNode d (Just g) = minimum (map (mmMaxNode (d - 1) . move g) (nextMoves g))
 
 childrenValues :: Game -> [Int]
 childrenValues g = map evalNaive $ children g 
 
 alphaBeta :: Game -> Move
-alphaBeta g = maxGame $ map (\mv -> (abNode 6 (-100) 100 (move g mv) False, mv)) (nextMoves g)
+alphaBeta g = maxGame $ map (\mv -> (abNode 3 (-100) 100 (move g mv) False, mv)) (nextMoves g)
         where maxGame = snd . foldr foldingF (-100, Move (Coord 1 1) (Coord 1 1))
               foldingF x y = if fst y > fst x then y else x
 
 abNode :: Int -> Int -> Int -> Maybe Game -> Bool -> Int
-abNode 0 _ _ (Just g) _ = evalNaive g
+abNode 0 _ _ (Just g) _ = trace (show g) $ evalNaive g
 abNode d a b (Just g@(Game _ _ trn)) isMax
         | checkMate g trn = -1000
         | checkMate g (notC trn) = 1000
-        | isMax = trace ("depth: " ++ show d ++ "\n") $ abMaxHelper d (-1000) a b g (nextMoves g) isMax
-        | otherwise = trace ("depth: " ++ show d ++ "\n") $ abMinHelper d 1000 a b g (nextMoves g) isMax
+        | isMax = abMaxHelper d (-1000) a b g (nextMoves g) isMax
+        | otherwise = abMinHelper d 1000 a b g (nextMoves g) isMax
 abNode _ _ _ Nothing _ = 0
 
         
@@ -85,3 +90,4 @@ value _ = 0 --yes, this includes the King, whose true value would be infinity
 
 pMap f xs = let bs = map f xs in
           bs `using` parList rdeepseq
+          
